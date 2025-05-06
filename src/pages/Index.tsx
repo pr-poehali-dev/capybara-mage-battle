@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 
 const Index = () => {
   const [userImage, setUserImage] = useState<string | null>(null);
-  const [battleLocation, setBattleLocation] = useState(""");
+  const [battleLocation, setBattleLocation] = useState("");
   const [isBattleStarted, setIsBattleStarted] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [message, setMessage] = useState("Я тебя жду, загрузи изображение противника!");
@@ -84,7 +84,7 @@ const Index = () => {
   
   const simulateImageRecognition = () => {
     // Симулируем задержку распознавания
-    setMessage("Анализирую противника..."");
+    setMessage("Анализирую противника...");
     
     setTimeout(() => {
       // Случайно определяем, является ли это капибарой (с вероятностью 10%)
@@ -328,7 +328,8 @@ const Index = () => {
                       key={index} 
                       onClick={() => useSuperPower(power)}
                       className="bg-purple-600 hover:bg-purple-700 text-white"
-                      variant={isCapybara ? "outline" : "default"}
+                      variant={isCapybara ? "
+outline" : "default"}
                     >
                       <Icon name={
                         power.includes("Огненный") ? "Flame" :
@@ -340,7 +341,7 @@ const Index = () => {
                       } className="mr-2" />
                       {power}
                     </Button>
-                  ))}
+                  )})
                 </div>
               ) : (
                 <div className="mb-6 text-center">
