@@ -1,9 +1,4 @@
-import { useState, useRef, useEffect } from "react");
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
-import Icon from "@/components/ui/icon";
+import { useState, useRef, useEffect } from "react";import { Button } from "@/components/ui/button";import { Card, CardContent } from "@/components/ui/card";import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";import { Textarea } from "@/components/ui/textarea";import Icon from "@/components/ui/icon";
 
 const Index = () => {
   const [userImage, setUserImage] = useState<string | null>(null);
