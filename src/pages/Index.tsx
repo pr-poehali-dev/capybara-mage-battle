@@ -1,12 +1,23 @@
-import { useState, useRef, useEffect } from "react";import { Button } from "@/components/ui/button";import { Card, CardContent } from "@/components/ui/card";import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";import { Textarea } from "@/components/ui/textarea";import Icon from "@/components/ui/icon";
+import { useState, useRef, useEffect } from "react");
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import Icon from "@/components/ui/icon";
+import { Badge } from "@/components/ui/badge";
 
 const Index = () => {
   const [userImage, setUserImage] = useState<string | null>(null);
-  const [battleLocation, setBattleLocation] = useState("");
+  const [battleLocation, setBattleLocation] = useState(""");
   const [isBattleStarted, setIsBattleStarted] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [message, setMessage] = useState("Я тебя жду, загрузи изображение противника!");
   const [messageVisible, setMessageVisible] = useState(true);
+  const [opponentType, setOpponentType] = useState<string | null>(null);
+  const [isCapybara, setIsCapybara] = useState(false);
+  const [superPowers, setSuperPowers] = useState<string[]>([]);
+  const [battleProgress, setBattleProgress] = useState(0);
+  const [isBattleWon, setIsBattleWon] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const locations = [
@@ -17,7 +28,22 @@ const Index = () => {
     "Облачный город",
     "Кристальные горы"
   ];
-
+  
+  const possibleOpponents = [
+    "человек", "кот", "собака", "птица", "дерево", "цветок", 
+    "гора", "здание", "автомобиль", "пляж", "океан", "еда",
+    "предмет", "игрушка", "фрукт", "робот", "инопланетянин"
+  ];
+  
+  const allSuperPowers = [
+    "Огненный шар", "Ледяной луч", "Телекинез", "Невидимость", 
+    "Преобразование времени", "Молния", "Щит отражения", 
+    "Призыв водного дракона", "Лианы-ловушки", "Вихрь песка",
+    "Каменная кожа", "Психическая атака", "Гипноз", "Клонирование",
+    "Взрыв света", "Темная воронка", "Облако ядовитого газа",
+    "Лечебный поток", "Пространственный разлом", "Гравитационный удар"
+  ];
+  
   useEffect(() => {
     // Случайные сообщения пока игрок не загрузил изображение
     if (!userImage && !isBattleStarted) {
@@ -40,7 +66,7 @@ const Index = () => {
       return () => clearInterval(intervalId);
     }
   }, [userImage, isBattleStarted]);
-
+  
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -48,27 +74,98 @@ const Index = () => {
       reader.onload = (e) => {
         setUserImage(e.target?.result as string);
         setMessageVisible(true);
-        setMessage("Отличный выбор противника! Готовлю арену для битвы...");
+        
+        // Симулируем распознавание изображения
+        simulateImageRecognition();
       };
       reader.readAsDataURL(file);
     }
   };
-
+  
+  const simulateImageRecognition = () => {
+    // Симулируем задержку распознавания
+    setMessage("Анализирую противника..."");
+    
+    setTimeout(() => {
+      // Случайно определяем, является ли это капибарой (с вероятностью 10%)
+      const isCapybaraOpponent = Math.random() <  0.1;
+      setIsCapybara(isCapybaraOpponent);
+      
+      if (isCapybaraOpponent) {
+        setMessage("Хм?! Это же... другая капибара?! Я не ожидала встретить родственника на поле боя!");
+        setOpponentType("капибара");
+      } else {
+        // Случайно выбираем тип противника
+        const randomOpponent = possibleOpponents[Math.floor(Math.random() * possibleOpponents.length)];
+        setOpponentType(randomOpponent);
+        setMessage(`Отличный выбор противника! Похоже, это ${randomOpponent}. Готовлю арену для битвы...`);
+      }
+      
+      // Генерируем случайные суперспособности для битвы
+      const randomPowers = generateRandomSuperPowers();
+      setSuperPowers(randomPowers);
+    }, 1500);
+  };
+  
+  const generateRandomSuperPowers = () => {
+    // Выбираем 3-5 случайных суперспособностей
+    const powerCount = Math.floor(Math.random() * 3) + 3; // 3-5 способностей
+    const selectedPowers: string[] = [];
+    
+    const shuffledPowers = [...allSuperPowers].sort(() => 0.5 - Math.random());
+    
+    for (let i = 0; i < powerCount; i++) {
+      selectedPowers.push(shuffledPowers[i]);
+    }
+    
+    return selectedPowers;
+  };
+  
   const generateBattle = () => {
     // Выбираем случайную локацию
     const randomLocation = locations[Math.floor(Math.random() * locations.length)];
     setBattleLocation(randomLocation);
     setIsBattleStarted(true);
-    setMessage(`Битва начинается на арене "${randomLocation}"! Покажи на что способен!`);
+    
+    if (isCapybara) {
+      setMessage(`Битва между капибарами начинается на арене "${randomLocation}"! Это будет дружеский поединок!`);
+    } else {
+      setMessage(`Битва начинается на арене "${randomLocation}"! Против тебя ${opponentType}. Используй свои суперспособности!`);
+    }
+    
+    // Сбрасываем прогресс битвы
+    setBattleProgress(0);
+    setIsBattleWon(false);
   };
-
+  
+  const useSuperPower = (power: string) => {
+    // Увеличиваем прогресс битвы
+    const newProgress = battleProgress + Math.floor(Math.random() * 20) + 10; // 10-30%
+    
+    if (newProgress >= 100) {
+      // Битва выиграна
+      setMessage(`Мощная атака "${power}" принесла победу! Противник повержен!`);
+      setBattleProgress(100);
+      setIsBattleWon(true);
+    } else {
+      // Битва продолжается
+      setMessage(`Ты применил "${power}"! Битва продолжается!`);
+      setBattleProgress(newProgress);
+    }
+  };
+  
   const resetBattle = () => {
     setUserImage(null);
     setBattleLocation("");
     setIsBattleStarted(false);
     setMessage("Я жду нового вызова! Загрузи изображение противника!");
+    setOpponentType(null);
+    setIsCapybara(false);
+    setSuperPowers([]);
+    setBattleProgress(0);
+    setIsBattleWon(false);
   };
-
+  
   // Рендерим сиреневые сферы вокруг капибары
   const renderMagicSpheres = () => {
     return (
@@ -93,7 +190,7 @@ const Index = () => {
       </div>
     );
   };
-
+  
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-800 to-purple-500 p-4 flex flex-col items-center justify-center">
       {!isBattleStarted ? (
@@ -135,7 +232,11 @@ const Index = () => {
               
               {userImage && (
                 <div className="mt-4 w-full">
-                  <p className="text-center text-sm text-gray-500 mb-2">Изображение загружено!</p>
+                  {opponentType && (
+                    <Badge variant="outline" className="mb-2 bg-purple-100 text-purple-800 mx-auto">
+                      {isCapybara ? "Противник: Дружественная капибара" : `Противник: ${opponentType}`}
+                    </Badge>
+                  )}
                   <div className="relative aspect-square w-full max-w-[200px] mx-auto overflow-hidden rounded-md border border-purple-200 mb-4">
                     <img 
                       src={userImage} 
@@ -173,8 +274,18 @@ const Index = () => {
                 <p className="text-purple-800 font-medium text-center">{message}</p>
               </div>
               
-              <h1 className="text-2xl font-bold text-purple-800 mb-4 magic-text">Магическая битва началась!</h1>
-              <p className="text-lg text-center text-purple-600 mb-6">Место сражения: {battleLocation}</p>
+              <h1 className="text-2xl font-bold text-purple-800 mb-4 magic-text">
+                {isCapybara ? "Дружеская магическая дуэль" : "Магическая битва началась!"}
+              </h1>
+              <p className="text-lg text-center text-purple-600 mb-2">Место сражения: {battleLocation}</p>
+              
+              {/* Прогресс битвы */}
+              <div className="w-full mb-4 bg-gray-200 rounded-full h-4">
+                <div 
+                  className="bg-purple-600 h-4 rounded-full transition-all duration-500 ease-out"
+                  style={{ width: `${battleProgress}%` }}
+                ></div>
+              </div>
               
               <div className="flex flex-col md:flex-row gap-6 w-full mb-6">
                 <div className="flex-1 flex justify-center">
@@ -203,16 +314,48 @@ const Index = () => {
                       className="h-full w-full object-cover"
                     />
                     <div className="absolute bottom-0 left-0 right-0 bg-red-600/80 text-white p-2 text-center">
-                      Таинственный противник
+                      {isCapybara ? "Дружественная капибара" : `Таинственный ${opponentType}`}
                     </div>
                   </div>
                 </div>
               </div>
               
+              {/* Кнопки суперспособностей */}
+              {!isBattleWon ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 w-full mb-6">
+                  {superPowers.map((power, index) => (
+                    <Button 
+                      key={index} 
+                      onClick={() => useSuperPower(power)}
+                      className="bg-purple-600 hover:bg-purple-700 text-white"
+                      variant={isCapybara ? "outline" : "default"}
+                    >
+                      <Icon name={
+                        power.includes("Огненный") ? "Flame" :
+                        power.includes("Ледяной") ? "Snowflake" :
+                        power.includes("Молния") ? "Zap" :
+                        power.includes("Водн") ? "Droplets" :
+                        power.includes("Лиан") ? "Sprout" :
+                        "Sparkles"
+                      } className="mr-2" />
+                      {power}
+                    </Button>
+                  ))}
+                </div>
+              ) : (
+                <div className="mb-6 text-center">
+                  <h2 className="text-2xl font-bold text-purple-600 mb-3">Победа!</h2>
+                  <p className="text-lg">Противник повержен магической силой капибары!</p>
+                </div>
+              )}
+              
               <div className="w-full mb-6">
                 <h2 className="text-xl font-medium text-purple-800 mb-2">Опишите ход своей битвы:</h2>
                 <Textarea 
-                  placeholder="Капибара-маг взмахнула волшебной палочкой и призвала мощный вихрь..." 
+                  placeholder={isCapybara ? 
+                    "Капибара-маг и дружественная капибара устроили соревнование по магическим трюкам..." : 
+                    "Капибара-маг взмахнула волшебной палочкой и призвала мощный вихрь..."
+                  } 
                   className="min-h-[100px]"
                 />
               </div>
@@ -226,10 +369,15 @@ const Index = () => {
                   <Icon name="RotateCcw" className="mr-2" />
                   Новая битва
                 </Button>
-                <Button className="bg-purple-600 hover:bg-purple-700">
-                  <Icon name="Sparkles" className="mr-2" />
-                  Применить магию
-                </Button>
+                {!isBattleWon && (
+                  <Button 
+                    className="bg-purple-600 hover:bg-purple-700"
+                    onClick={() => useSuperPower("Секретная магия")}
+                  >
+                    <Icon name="Sparkles" className="mr-2" />
+                    Применить секретную магию
+                  </Button>
+                )}
               </div>
             </div>
           </CardContent>
@@ -255,17 +403,23 @@ const Index = () => {
               <div className="bg-purple-100 rounded-full p-1 mt-0.5">
                 <span className="text-purple-800 font-bold">2</span>
               </div>
-              <p>Капибара-маг создаст магическую битву и выберет случайную локацию для сражения.</p>
+              <p>Капибара-маг определит тип противника и даст вам случайные суперспособности для битвы.</p>
             </div>
             <div className="flex items-start gap-2">
               <div className="bg-purple-100 rounded-full p-1 mt-0.5">
                 <span className="text-purple-800 font-bold">3</span>
               </div>
-              <p>Опишите, как проходит ваша битва! Используйте воображение и придумывайте магические заклинания.</p>
+              <p>Используйте суперспособности, чтобы победить противника! Каждое применение способности приближает вас к победе.</p>
             </div>
             <div className="flex items-start gap-2">
               <div className="bg-purple-100 rounded-full p-1 mt-0.5">
                 <span className="text-purple-800 font-bold">4</span>
+              </div>
+              <p>Если противник - другая капибара, битва превратится в дружеское соревнование!</p>
+            </div>
+            <div className="flex items-start gap-2">
+              <div className="bg-purple-100 rounded-full p-1 mt-0.5">
+                <span className="text-purple-800 font-bold">5</span>
               </div>
               <p>Вы можете начать новую битву в любой момент, загрузив другое изображение.</p>
             </div>
