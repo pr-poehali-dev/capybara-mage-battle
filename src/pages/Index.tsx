@@ -1,5 +1,4 @@
-
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react");
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -11,6 +10,8 @@ const Index = () => {
   const [battleLocation, setBattleLocation] = useState("");
   const [isBattleStarted, setIsBattleStarted] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [message, setMessage] = useState("Я тебя жду, загрузи изображение противника!");
+  const [messageVisible, setMessageVisible] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const locations = [
@@ -22,12 +23,37 @@ const Index = () => {
     "Кристальные горы"
   ];
 
+  useEffect(() => {
+    // Случайные сообщения пока игрок не загрузил изображение
+    if (!userImage && !isBattleStarted) {
+      const messages = [
+        "Я тебя жду, загрузи изображение противника!",
+        "Не бойся вызвать меня на магическую дуэль!",
+        "Загрузи любое изображение, и мы начнем битву!",
+        "Моя магия готова к испытанию!",
+        "Выбери своего чемпиона и брось мне вызов!"
+      ];
+      
+      const intervalId = setInterval(() => {
+        setMessageVisible(false);
+        setTimeout(() => {
+          setMessage(messages[Math.floor(Math.random() * messages.length)]);
+          setMessageVisible(true);
+        }, 500);
+      }, 5000);
+      
+      return () => clearInterval(intervalId);
+    }
+  }, [userImage, isBattleStarted]);
+
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
         setUserImage(e.target?.result as string);
+        setMessageVisible(true);
+        setMessage("Отличный выбор противника! Готовлю арену для битвы...");
       };
       reader.readAsDataURL(file);
     }
@@ -38,12 +64,39 @@ const Index = () => {
     const randomLocation = locations[Math.floor(Math.random() * locations.length)];
     setBattleLocation(randomLocation);
     setIsBattleStarted(true);
+    setMessage(`Битва начинается на арене "${randomLocation}"! Покажи на что способен!`);
   };
 
   const resetBattle = () => {
     setUserImage(null);
     setBattleLocation("");
     setIsBattleStarted(false);
+    setMessage("Я жду нового вызова! Загрузи изображение противника!");
+  };
+
+  // Рендерим сиреневые сферы вокруг капибары
+  const renderMagicSpheres = () => {
+    return (
+      <div className="absolute inset-0 pointer-events-none">
+        {[...Array(5)].map((_, i) => (
+          <div 
+            key={i}
+            className="absolute rounded-full bg-purple-400/60 animate-pulse-slow"
+            style={
+              {
+                width: `${20 + Math.random() * 15}px`,
+                height: `${20 + Math.random() * 15}px`,
+                top: `${25 + Math.sin(i) * 60}%`,
+                left: `${25 + Math.cos(i) * 60}%`,
+                animationDelay: `${i * 0.2}s`,
+                boxShadow: '0 0 15px 5px rgba(168, 85, 247, 0.5)',
+                filter: 'blur(2px)'
+              }
+            }
+          />
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -53,13 +106,20 @@ const Index = () => {
           <CardContent className="p-6">
             <div className="flex flex-col items-center justify-center">
               <div className="mb-6 text-center">
-                <img 
-                  src="https://cdn.poehali.dev/files/276f587d-993c-4665-ba39-2bb9de5fce9a.png" 
-                  alt="Капибара-маг" 
-                  className="h-40 mx-auto mb-2" 
-                />
+                <div className="relative">
+                  <img 
+                    src="https://cdn.poehali.dev/files/276f587d-993c-4665-ba39-2bb9de5fce9a.png" 
+                    alt="Капибара-маг" 
+                    className="h-40 mx-auto mb-2" 
+                  />
+                  {renderMagicSpheres()}
+                </div>
+                <div 
+                  className={`mt-4 p-3 bg-purple-100 rounded-lg border border-purple-300 transition-opacity duration-500 ${messageVisible ? 'opacity-100' : 'opacity-0'}`}
+                >
+                  <p className="text-purple-800 font-medium">{message}</p>
+                </div>
                 <h1 className="text-2xl font-bold text-purple-800 mt-4">Капибара-маг ждёт твой вызов!</h1>
-                <p className="text-gray-600 mt-2">Загрузи изображение, и я создам волшебную битву с твоим противником!</p>
               </div>
               
               <input 
@@ -109,10 +169,16 @@ const Index = () => {
           </CardContent>
         </Card>
       ) : (
-        <Card className="w-full max-w-4xl bg-white/90 shadow-xl">
+        <Card className="w-full max-w-4xl bg-white/90 shadow-xl battle-card">
           <CardContent className="p-6">
             <div className="flex flex-col items-center">
-              <h1 className="text-2xl font-bold text-purple-800 mb-4">Магическая битва началась!</h1>
+              <div 
+                className={`mb-6 p-3 bg-purple-100 rounded-lg border border-purple-300 w-full transition-opacity duration-500 ${messageVisible ? 'opacity-100' : 'opacity-0'}`}
+              >
+                <p className="text-purple-800 font-medium text-center">{message}</p>
+              </div>
+              
+              <h1 className="text-2xl font-bold text-purple-800 mb-4 magic-text">Магическая битва началась!</h1>
               <p className="text-lg text-center text-purple-600 mb-6">Место сражения: {battleLocation}</p>
               
               <div className="flex flex-col md:flex-row gap-6 w-full mb-6">
@@ -123,6 +189,7 @@ const Index = () => {
                       alt="Капибара-маг" 
                       className="h-full w-full object-cover"
                     />
+                    {renderMagicSpheres()}
                     <div className="absolute bottom-0 left-0 right-0 bg-purple-600/80 text-white p-2 text-center">
                       Капибара-маг
                     </div>
